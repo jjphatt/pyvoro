@@ -90,6 +90,13 @@ double cell_get_volume(void* cell_) {
   return cell->volume();
 }
 
+std::vector<double> cell_get_centroid(void* cell_) {
+  voronoicell_neighbor* cell = (voronoicell_neighbor*)cell_;
+  std::vector<double> xbar(3);
+  cell->centroid(xbar[0], xbar[1], xbar[2]);
+  return xbar;
+}
+
 /* input: (x_, y_, z_) the position of the original input point.
  * returns:
  * vector of doubles, coord j of vertex i at ret[i*3 + j]
@@ -152,6 +159,16 @@ void** cell_get_faces(void* cell_) {
   faces[num_faces] = NULL;
   
   return faces;
+}
+
+
+std::vector<double> cell_get_face_areas(void* cell_) {
+  voronoicell_neighbor* cell = (voronoicell_neighbor*)cell_;
+  int num_faces = cell->number_of_faces();
+  
+  std::vector<double> areas(num_faces);
+  cell->face_areas(areas);
+  return areas;
 }
 
 

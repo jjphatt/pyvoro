@@ -23,9 +23,11 @@ cdef extern from "vpp.h":
   void put_particles(void* container_poly_, int n_, double* x_, double* y_, double* z_, double* r_)
   void** compute_voronoi_tesselation(void* container_poly_, int n_)
   double cell_get_volume(void* cell_)
+  vector[double] cell_get_centroid(void* cell_)
   vector[double] cell_get_vertex_positions(void* cell_, double x_, double y_, double z_)
   void** cell_get_vertex_adjacency(void* cell_)
   void** cell_get_faces(void* cell_)
+  vector[double] cell_get_face_areas(void* cell_)
   void dispose_all(void* container_poly_, void** vorocells, int n_)
 
 
@@ -153,10 +155,14 @@ Output format is a list of cells as follows:
   # extract the Voronoi cells into python objects:
   py_cells = [{'original':p} for p in points]
   cdef vector[double] vertex_positions
+  cdef vector[double] centroid
+  cdef vector[double] face_areas
   cdef void** lists = NULL
   cdef vector[int]* vptr = NULL
   for i from 0 <= i < n:
     py_cells[i]['volume'] = float(cell_get_volume(voronoi_cells[i]))
+    centroid = cell_get_centroid(voronoi_cells[i])
+    py_cells[i]['centroid'] = [centroid[0], centroid[1], centroid[2]]
     vertex_positions = cell_get_vertex_positions(voronoi_cells[i], xs[i], ys[i], zs[i])
     cell_vertices = []
     for j from 0 <= j < vertex_positions.size() / 3:
@@ -182,6 +188,7 @@ Output format is a list of cells as follows:
     py_cells[i]['adjacency'] = adjacency
     
     lists = cell_get_faces(voronoi_cells[i])
+    face_areas = cell_get_face_areas(voronoi_cells[i])
     faces = []
     j = 0
     while lists[j] != NULL:
@@ -191,7 +198,8 @@ Output format is a list of cells as follows:
         face_vertices.append(int(deref(vptr)[k]))
       faces.append({
         'adjacent_cell' : int(deref(vptr)[vptr.size() - 1]),
-        'vertices' : face_vertices
+        'vertices' : face_vertices,
+        'area' : face_areas[j]
       })
       del vptr
       j += 1
