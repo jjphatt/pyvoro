@@ -23,7 +23,7 @@ cdef extern from "vpp.h":
   void put_particles(void* container_poly_, int n_, double* x_, double* y_, double* z_, double* r_)
   void** compute_voronoi_tesselation(void* container_poly_, int n_)
   double cell_get_volume(void* cell_)
-  vector[double] cell_get_centroid(void* cell_)
+  vector[double] cell_get_centroid(void* cell_, double x_, double y_, double z_)
   vector[double] cell_get_vertex_positions(void* cell_, double x_, double y_, double z_)
   void** cell_get_vertex_adjacency(void* cell_)
   void** cell_get_faces(void* cell_)
@@ -161,7 +161,7 @@ Output format is a list of cells as follows:
   cdef vector[int]* vptr = NULL
   for i from 0 <= i < n:
     py_cells[i]['volume'] = float(cell_get_volume(voronoi_cells[i]))
-    centroid = cell_get_centroid(voronoi_cells[i])
+    centroid = cell_get_centroid(voronoi_cells[i], points[i][0], points[i][1], points[i][2])
     py_cells[i]['centroid'] = [centroid[0], centroid[1], centroid[2]]
     vertex_positions = cell_get_vertex_positions(voronoi_cells[i], xs[i], ys[i], zs[i])
     cell_vertices = []

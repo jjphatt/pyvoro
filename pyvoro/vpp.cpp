@@ -90,10 +90,17 @@ double cell_get_volume(void* cell_) {
   return cell->volume();
 }
 
-std::vector<double> cell_get_centroid(void* cell_) {
+/* input: (x_, y_, z_) the position of the original input point.
+ * returns:
+ * vector of doubles, coordinates of centroid of cell.
+ */
+std::vector<double> cell_get_centroid(void* cell_, double x_, double y_, double z_) {
   voronoicell_neighbor* cell = (voronoicell_neighbor*)cell_;
   std::vector<double> xbar(3);
   cell->centroid(xbar[0], xbar[1], xbar[2]);
+  xbar[0] += x_;
+  xbar[1] += y_;
+  xbar[2] += z_;
   return xbar;
 }
 
